@@ -109,47 +109,9 @@
           }
         }
       }
-    },
-    "/api/v1/openapi.json": {
-      "get": {
-        "summary": "Get OpenAPI specification",
-        "operationId": "getOpenApiSpec",
-        "responses": {
-          "200": {
-            "description": "OpenAPI specification",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OpenAPISpec"
-                }
-              }
-            }
-          }
-        }
-      }
     }
   },
   "components": {
-    "schemas": {
-      "OpenAPISpec": {
-        "type": "object",
-        "properties": {
-          "openapi": {
-            "type": "string"
-          },
-          "info": {
-            "type": "object"
-          },
-          "servers": {
-            "type": "array"
-          },
-          "paths": {
-            "type": "object"
-          },
-          "components": {
-            "type": "object"
-          }
-        }
       }
     }
   }
