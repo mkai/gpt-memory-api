@@ -39,7 +39,7 @@ Resources:
       Architectures: [arm64]
       Timeout: 1
       MemorySize: 512
-      ReservedConcurrentExecutions: 10
+      # ReservedConcurrentExecutions: 10
       Handler: index.handler
       Code:
         S3Bucket: !Ref ArtifactsBucketName
