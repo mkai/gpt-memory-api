@@ -1,7 +1,7 @@
 import { Hono } from "hono"
 import { cors } from "hono/cors"
-import { bearerAuth } from "hono/bearer-auth"
 import { logger } from "hono/logger"
+import { bearerAuth } from "hono/bearer-auth"
 import { getFile, createFile } from "./store"
 import { listFiles } from "./store"
 import openApiSpec from "../openapi.json"
@@ -35,7 +35,7 @@ app.post(
   bearerAuth({ token: API_TOKEN }),
   async (ctx) => {
     const filename = ctx.req.param("name")
-    const contents = await ctx.req.text()
+    const { contents } = await ctx.req.json()
     await createFile(filename, contents)
     return ctx.json(
       {
