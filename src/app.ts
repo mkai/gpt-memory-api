@@ -7,7 +7,7 @@ import openApiSpec from "../openapi.json"
 
 export const app = new Hono()
 
-app.use("*", cors(), logger())
+app.use("*", logger(), cors())
 
 app.get("/api/v1/files", async (ctx) => {
   const files = await listFiles()
