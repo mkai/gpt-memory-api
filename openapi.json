@@ -16,6 +16,11 @@
       "get": {
         "summary": "List all files",
         "operationId": "listFiles",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "A list of files",
@@ -37,6 +42,11 @@
       "get": {
         "summary": "Get a file by name",
         "operationId": "getFileByName",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "name",
@@ -71,6 +81,11 @@
       "post": {
         "summary": "Create or update a file by name",
         "operationId": "createOrUpdateFileByName",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "name",
@@ -112,6 +127,10 @@
     }
   },
   "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
       }
     }
   }
