@@ -5,6 +5,12 @@
     "version": "1.0.0",
     "description": "API for managing GPT memory"
   },
+  "servers": [
+    {
+      "url": "https://haxa5657dqkwoml4aoibwwxrme0fctly.lambda-url.eu-central-1.on.aws",
+      "description": "API server"
+    }
+  ],
   "paths": {
     "/files": {
       "get": {
