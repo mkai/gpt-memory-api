@@ -35,6 +35,4 @@ app.post("/api/v1/files/:name", async (ctx) => {
   )
 })
 
-app.get("/api/v1/openapi.json", (ctx) => {
-  return ctx.json(openApiSpec)
-})
+app.get("/api/v1/openapi.json", (ctx) => ctx.json(openApiSpec))
