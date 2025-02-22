@@ -12,7 +12,7 @@
     }
   ],
   "paths": {
-    "/files": {
+    "/api/v1/files": {
       "get": {
         "summary": "List all files",
         "responses": {
@@ -32,7 +32,7 @@
         }
       }
     },
-    "/files/{name}": {
+    "/api/v1/files/{name}": {
       "get": {
         "summary": "Get a file by name",
         "parameters": [
@@ -107,7 +107,7 @@
         }
       }
     },
-    "/openapi.json": {
+    "/api/v1/openapi.json": {
       "get": {
         "summary": "Get OpenAPI specification",
         "responses": {
