@@ -1,0 +1,102 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description: GPT Memory API
+Parameters:
+  Version:
+    Type: String
+  Environment:
+    Type: String
+    AllowedValues:
+      - production
+  ArtifactsBucketName:
+    Type: String
+
+Resources:
+  ApiFilesBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Sub ${AWS::StackName}-api-files
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      VersioningConfiguration:
+        Status: Enabled
+
+  ApiLambda:
+    Type: AWS::Lambda::Function
+    DependsOn: ApiLambdaLogGroup
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-api
+      Description: GPT Memory API Lambda
+      Runtime: nodejs22.x
+      Architectures: [arm64]
+      Timeout: 1
+      MemorySize: 512
+      ReservedConcurrentExecutions: 10
+      Handler: index.handler
+      Code:
+        S3Bucket: !Ref ArtifactsBucketName
+        S3Key: !Sub versions/${Version}/gptmem-api.zip
+      Role: !GetAtt ApiLambdaExecutionRole.Arn
+      Environment:
+        Variables:
+          NODE_ENV: !Ref Environment
+          FILES_BUCKET_NAME: !Ref ApiFilesBucket
+
+  ApiLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${AWS::StackName}-api
+      RetentionInDays: 7
+
+  ApiLambdaUrl:
+    Type: AWS::Lambda::Url
+    Properties:
+      TargetFunctionArn: !Ref ApiLambda
+      AuthType: NONE
+
+  ApiLambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref ApiLambda
+      FunctionUrlAuthType: "NONE"
+      Action: lambda:InvokeFunctionUrl
+      Principal: "*"
+
+  ApiLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: "/"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: ApiLambdaExecutionRole
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - !GetAtt ApiLambdaLogGroup.Arn
+              - Effect: Allow
+                Action:
+                  - s3:ListBucket
+                  - s3:GetObject
+                  - s3:PutObject
+                Resource:
+                  - !GetAtt ApiFilesBucket.Arn
+                  - !Join ["", [!GetAtt ApiFilesBucket.Arn, "/*"]]
