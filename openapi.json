@@ -15,6 +15,7 @@
     "/api/v1/files": {
       "get": {
         "summary": "List all files",
+        "operationId": "listFiles",
         "responses": {
           "200": {
             "description": "A list of files",
@@ -35,6 +36,7 @@
     "/api/v1/files/{name}": {
       "get": {
         "summary": "Get a file by name",
+        "operationId": "getFileByName",
         "parameters": [
           {
             "name": "name",
@@ -68,6 +70,7 @@
       },
       "post": {
         "summary": "Create or update a file by name",
+        "operationId": "createOrUpdateFileByName",
         "parameters": [
           {
             "name": "name",
@@ -110,6 +113,7 @@
     "/api/v1/openapi.json": {
       "get": {
         "summary": "Get OpenAPI specification",
+        "operationId": "getOpenApiSpec",
         "responses": {
           "200": {
             "description": "OpenAPI specification",
@@ -128,7 +132,24 @@
   "components": {
     "schemas": {
       "OpenAPISpec": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "openapi": {
+            "type": "string"
+          },
+          "info": {
+            "type": "object"
+          },
+          "servers": {
+            "type": "array"
+          },
+          "paths": {
+            "type": "object"
+          },
+          "components": {
+            "type": "object"
+          }
+        }
       }
     }
   }
