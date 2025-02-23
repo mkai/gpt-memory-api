@@ -1,3 +1,4 @@
+import { HTTPException } from "hono/http-exception"
 import { listObjects, getObject, putObject } from "./s3"
 
 export type File = {
@@ -8,11 +9,17 @@ export type File = {
 
 type FileListItem = Omit<File, "contents">
 
-export async function listFiles(): Promise<FileListItem[]> {
-  const objects = await listObjects(process.env.FILES_BUCKET_NAME!)
+type ListFilesOptions = {
+  prefix?: string
+}
+
+async function listFiles({ prefix = "" }: ListFilesOptions = {}): Promise<
+  FileListItem[]
+> {
+  const objects = await listObjects(process.env.FILES_BUCKET_NAME!, prefix)
   return objects.map((o) => {
     return {
-      filename: o.Key!,
+      filename: o.Key!.replace(prefix, ""),
       lastModified: o.LastModified,
     }
   })
@@ -26,17 +33,62 @@ const streamToString = (stream: any): Promise<string> =>
     stream.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")))
   })
 
-export async function getFile(filename: string): Promise<File> {
-  const stream = await getObject(process.env.FILES_BUCKET_NAME!, filename)
+type GetFileOptions = {
+  prefix?: string
+}
+
+async function getFile(
+  filename: string,
+  { prefix = "" }: GetFileOptions = {},
+): Promise<File | undefined> {
+  if (filename.includes("/")) {
+    throw new HTTPException(400)
+  }
+
+  const stream = await getObject(
+    process.env.FILES_BUCKET_NAME!,
+    prefix + filename,
+  )
+  if (!stream) {
+    return
+  }
   return {
     filename,
     contents: await streamToString(stream),
   }
 }
 
-export async function createFile(
+type CreateFileOptions = {
+  prefix?: string
+}
+
+async function createFile(
+  filename: string,
+  contents: string,
+  { prefix = "" }: CreateFileOptions = {},
+): Promise<void> {
+  if (filename.includes("/")) {
+    throw new HTTPException(400)
+  }
+
+  return putObject(process.env.FILES_BUCKET_NAME!, prefix + filename, contents)
+}
+
+export async function listUserFiles(username: string): Promise<FileListItem[]> {
+  return listFiles({ prefix: `${username}/` })
+}
+
+export async function getUserFile(
+  username: string,
+  filename: string,
+): Promise<File | undefined> {
+  return getFile(filename, { prefix: `${username}/` })
+}
+
+export async function createUserFile(
+  username: string,
   filename: string,
   contents: string,
 ): Promise<void> {
-  return putObject(process.env.FILES_BUCKET_NAME!, filename, contents)
+  return createFile(filename, contents, { prefix: `${username}/` })
 }
