@@ -1,4 +1,3 @@
-import { HTTPException } from "hono/http-exception"
 import { listObjects, getObject, putObject } from "./s3"
 
 export type File = {
@@ -42,7 +41,7 @@ async function getFile(
   { prefix = "" }: GetFileOptions = {},
 ): Promise<File | undefined> {
   if (filename.includes("/")) {
-    throw new HTTPException(400)
+    throw new Error("filename cannot include path separator")
   }
 
   const stream = await getObject(
@@ -52,6 +51,7 @@ async function getFile(
   if (!stream) {
     return
   }
+
   return {
     filename,
     contents: await streamToString(stream),
@@ -68,7 +68,7 @@ async function createFile(
   { prefix = "" }: CreateFileOptions = {},
 ): Promise<void> {
   if (filename.includes("/")) {
-    throw new HTTPException(400)
+    throw new Error("filename cannot include path separator")
   }
 
   return putObject(process.env.FILES_BUCKET_NAME!, prefix + filename, contents)
