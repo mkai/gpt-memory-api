@@ -28,7 +28,7 @@ app.get("/api/v1/files/:filename", authMiddleware, async (ctx) => {
   console.info(`Getting file ${username}/${filename}…`)
   const file = await getUserFile(username, filename)
   if (!file) {
-    console.info("File not found: ", filename)
+    console.info(`File not found: "${username}/${filename}"`)
     throw new HTTPException(404)
   }
 
