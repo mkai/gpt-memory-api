@@ -3,6 +3,7 @@ import {
   ListObjectsV2Command,
   GetObjectCommand,
   PutObjectCommand,
+  NoSuchKey,
 } from "@aws-sdk/client-s3"
 
 const s3 = new S3Client({ region: "eu-central-1" })
@@ -37,6 +38,10 @@ export async function getObject(bucketName: string, key: string) {
 
     return file.Body
   } catch (error: unknown) {
+    if (error instanceof NoSuchKey) {
+      return
+    }
+
     console.error("Error getting file from S3", error)
     throw error
   }
