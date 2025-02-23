@@ -8,9 +8,13 @@ import {
 
 const s3 = new S3Client({ region: "eu-central-1" })
 
-export async function listObjects(bucketName: string) {
+const ensureTrailingSlash = (str: string) =>
+  str.endsWith("/") ? str : `${str}/`
+
+export async function listObjects(bucketName: string, prefix?: string) {
   const params = {
     Bucket: bucketName,
+    Prefix: prefix ? ensureTrailingSlash(prefix) : undefined,
   }
 
   const command = new ListObjectsV2Command(params)
