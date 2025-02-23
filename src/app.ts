@@ -20,6 +20,11 @@ app.get("/api/v1/files", authMiddleware, async (ctx) => {
 app.get("/api/v1/files/:filename", authMiddleware, async (ctx) => {
   const username = getUsername(ctx)
   const filename = ctx.req.param("filename")
+  if (filename.includes("/")) {
+    console.info(`Got illegal filename: "${filename}"`)
+    throw new HTTPException(400)
+  }
+
   console.info(`Getting file ${username}/${filename}…`)
   const file = await getUserFile(username, filename)
   if (!file) {
@@ -36,6 +41,11 @@ app.get("/api/v1/files/:filename", authMiddleware, async (ctx) => {
 app.post("/api/v1/files", authMiddleware, async (ctx) => {
   const username = getUsername(ctx)
   const { filename, contents } = await ctx.req.json()
+  if (filename.includes("/")) {
+    console.info(`Got illegal filename: "${filename}"`)
+    throw new HTTPException(400)
+  }
+
   console.info(`Saving file ${username}/${filename} (${contents.length} bytes)`)
   await createUserFile(getUsername(ctx), filename, contents)
   return ctx.json({ filename })
