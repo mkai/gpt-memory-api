@@ -36,12 +36,57 @@
             }
           }
         }
+      },
+      "post": {
+        "summary": "Create or update a file",
+        "operationId": "createOrUpdateFile",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "filename": {
+                    "type": "string"
+                  },
+                  "contents": {
+                    "type": "string"
+                  }
+                },
+                "required": ["filename", "contents"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "File created or updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "filename": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
-    "/api/v1/files/{name}": {
+    "/api/v1/files/{filename}": {
       "get": {
-        "summary": "Get a file by name",
-        "operationId": "getFileByName",
+        "summary": "Get a file by filename",
+        "operationId": "getFileByFilename",
         "security": [
           {
             "bearerAuth": []
@@ -49,7 +94,7 @@
         ],
         "parameters": [
           {
-            "name": "name",
+            "name": "filename",
             "in": "path",
             "required": true,
             "schema": {
@@ -69,58 +114,6 @@
                       "type": "string"
                     },
                     "contents": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "summary": "Create or update a file by name",
-        "operationId": "createOrUpdateFileByName",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "name",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "contents": {
-                    "type": "string"
-                  }
-                },
-                "required": ["contents"]
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "File created or updated",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "filename": {
                       "type": "string"
                     }
                   }
