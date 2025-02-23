@@ -6,7 +6,7 @@
     "dev": "tsx watch ./scripts/serve.ts",
     "check": "prettier --check .",
     "test": "echo \"Error: no test specified\" && exit 0",
-    "build": "esbuild --bundle --outfile=./dist/index.js --platform=node --target=node22 ./src/index.ts"
+    "build": "esbuild --bundle --minify --platform=node --target=node22 --outfile=./dist/index.js ./src/index.ts"
   },
   "devDependencies": {
     "@hono/node-server": "^1.13.8",
