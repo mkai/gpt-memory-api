@@ -2,6 +2,7 @@ import { Hono } from "hono"
 import { cors } from "hono/cors"
 import { logger } from "hono/logger"
 import { HTTPException } from "hono/http-exception"
+import { validateFilename, validateFile } from "./validate"
 import { authMiddleware, getUsername } from "./auth"
 import { listUserFiles, getUserFile, createUserFile } from "./store"
 import openApiSpec from "../openapi.json"
@@ -19,9 +20,10 @@ app.get("/api/v1/files", authMiddleware, async (ctx) => {
 
 app.get("/api/v1/files/:filename", authMiddleware, async (ctx) => {
   const username = getUsername(ctx)
-  const filename = ctx.req.param("filename")
-  if (filename.includes("/")) {
-    console.info(`Got illegal filename: "${filename}"`)
+  const filenameInput: unknown = ctx.req.param("filename")
+  const [filename, errors] = validateFilename(filenameInput)
+  if (!filename) {
+    console.info("Invalid request data:", filenameInput, errors)
     throw new HTTPException(400)
   }
 
@@ -40,12 +42,14 @@ app.get("/api/v1/files/:filename", authMiddleware, async (ctx) => {
 
 app.post("/api/v1/files", authMiddleware, async (ctx) => {
   const username = getUsername(ctx)
-  const { filename, contents } = await ctx.req.json()
-  if (filename.includes("/")) {
-    console.info(`Got illegal filename: "${filename}"`)
+  const fileInput: unknown = await ctx.req.json()
+  const [file, errors] = validateFile(fileInput)
+  if (!file) {
+    console.info("Invalid request data:", fileInput, errors)
     throw new HTTPException(400)
   }
 
+  const { filename, contents } = file
   console.info(`Saving file ${username}/${filename} (${contents.length} bytes)`)
   await createUserFile(getUsername(ctx), filename, contents)
   return ctx.json({ filename })
