@@ -48,6 +48,7 @@ Resources:
       Environment:
         Variables:
           NODE_ENV: !Ref Environment
+          NO_COLOR: "true"
           FILES_BUCKET_NAME: !Ref ApiFilesBucket
 
   ApiLambdaLogGroup:
