@@ -9,7 +9,8 @@ import openApiSpec from "../openapi.json"
 
 export const app = new Hono()
 
-app.use("*", logger(), cors())
+app.use(logger())
+app.use(cors())
 
 app.get("/api/v1/files", authMiddleware, async (ctx) => {
   const username = getUsername(ctx)
