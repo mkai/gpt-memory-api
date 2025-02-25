@@ -1,17 +1,20 @@
 import * as v from "valibot"
 
+type ValidationError = Error
+
 const validate = <TData>(
   data: unknown,
   schema: Parameters<typeof v.parse>[0],
-): [TData, undefined] | [undefined, v.ValiError<typeof schema>["issues"]] => {
+): [TData, undefined] | [undefined, ValidationError[]] => {
   try {
     return [v.parse(schema, data) as TData, undefined]
   } catch (err: unknown) {
-    if (!(err instanceof v.ValiError)) {
-      throw err
+    if (err instanceof v.ValiError) {
+      const issues = err.issues as v.ValiError<typeof schema>["issues"]
+      return [undefined, issues.map((issue) => new Error(issue.message))]
     }
 
-    return [undefined, err.issues]
+    throw err
   }
 }
 
