@@ -26,7 +26,7 @@ const filenameSchema = v.pipe(
 
 const fileSchema = v.object({
   filename: filenameSchema,
-  contents: v.pipe(v.string(), v.maxLength(100 * 1024, "file is too big")), // 0 bytes to 100 kilobytes
+  contents: v.pipe(v.string(), v.maxLength(1000 * 1024, "file is too big")), // 0 bytes to 1 MB
 })
 
 export const validateFilename = (value: unknown) =>
