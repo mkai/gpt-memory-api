@@ -3,8 +3,8 @@ import { bearerAuth } from "hono/bearer-auth"
 import { HTTPException } from "hono/http-exception"
 
 const tokens: Record<string, string> = {
-  "b6636bbc-f772-4017-b465-898f4069ec36": "user1",
-  "0dfe9da8-4065-4dd3-a793-5200107fe455": "user2",
+  "e4c2ab4a-52c4-44de-a22d-fe35723e7b4f": "user1",
+  "025f1586-a0ad-452c-8ceb-32d7951119ba": "user2",
 }
 
 export const getUsername = (ctx: Context): string => {
