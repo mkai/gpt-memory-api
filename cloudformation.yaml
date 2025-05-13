@@ -10,6 +10,8 @@ Parameters:
       - production
   ArtifactsBucketName:
     Type: String
+  AllowedTokens:
+    Type: String
 
 Resources:
   ApiFilesBucket:
@@ -50,6 +52,7 @@ Resources:
           NODE_ENV: !Ref Environment
           NO_COLOR: "true"
           FILES_BUCKET_NAME: !Ref ApiFilesBucket
+          ALLOWED_TOKENS: !Ref AllowedTokens
 
   ApiLambdaLogGroup:
     Type: AWS::Logs::LogGroup

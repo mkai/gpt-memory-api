@@ -40,7 +40,8 @@ jobs:
         with:
           name: gptmem
           template: ./cloudformation.yaml
-          parameter-overrides: "Environment=production,Version=${{ github.sha }},ArtifactsBucketName=gptmem-artifacts"
+          parameter-overrides: "Environment=production,Version=${{ github.sha }},ArtifactsBucketName=gptmem-artifacts,AllowedTokens=${{ secrets.ALLOWED_TOKENS }}"
+
           no-fail-on-empty-changeset: "1"
         env:
           AWS_REGION: eu-central-1
