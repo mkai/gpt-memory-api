@@ -7,7 +7,7 @@ const mockedListObjects = vitest.mocked(listObjects, true)
 const mockedGetObject = vitest.mocked(getObject, true)
 const mockedPutObject = vitest.mocked(putObject, true)
 
-describe("Store", () => {
+describe("store module", () => {
   const username = "testuser"
   const filename = "testfile.txt"
   const contents = "file contents"
