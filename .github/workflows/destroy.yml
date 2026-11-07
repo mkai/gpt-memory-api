@@ -1,0 +1,74 @@
+name: Destroy
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type the stack name ("gptmem") to confirm deletion'
+        required: true
+        type: string
+      delete_files_bucket:
+        description: "Also empty and delete the retained API files bucket (all stored data is lost!)"
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: gptmem-stack
+  cancel-in-progress: false
+
+env:
+  STACK_NAME: gptmem
+  AWS_REGION: eu-central-1
+  AWS_ACCESS_KEY_ID: ${{ vars.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+jobs:
+  destroy:
+    name: Destroy
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Verify confirmation
+        if: inputs.confirm != env.STACK_NAME
+        run: |
+          echo "::error::Confirmation does not match stack name '$STACK_NAME'. Aborting."
+          exit 1
+
+      - name: Delete CloudFormation stack
+        run: |
+          if ! aws cloudformation describe-stacks --stack-name "$STACK_NAME" >/dev/null 2>&1; then
+            echo "Stack '$STACK_NAME' does not exist, nothing to delete."
+            exit 0
+          fi
+
+          aws cloudformation delete-stack --stack-name "$STACK_NAME"
+          echo "Waiting for stack '$STACK_NAME' to be deleted…"
+          aws cloudformation wait stack-delete-complete --stack-name "$STACK_NAME"
+          echo "Stack '$STACK_NAME' deleted."
+
+      # The files bucket has `DeletionPolicy: Retain`, so CloudFormation leaves it behind.
+      - name: Delete retained API files bucket
+        if: inputs.delete_files_bucket
+        run: |
+          BUCKET="$STACK_NAME-api-files"
+          if ! aws s3api head-bucket --bucket "$BUCKET" 2>/dev/null; then
+            echo "Bucket '$BUCKET' does not exist, nothing to delete."
+            exit 0
+          fi
+
+          # The bucket is versioned, so all object versions and delete markers must be removed.
+          while true; do
+            payload=$(aws s3api list-object-versions --bucket "$BUCKET" --max-keys 1000 --no-paginate --output json \
+              | jq -c '{Objects: [(.Versions // [])[], (.DeleteMarkers // [])[] | {Key, VersionId}], Quiet: true}')
+            count=$(jq '.Objects | length' <<< "$payload")
+            [ "$count" -eq 0 ] && break
+            echo "Deleting $count object versions…"
+            result=$(aws s3api delete-objects --bucket "$BUCKET" --delete "$payload" --output json)
+            if [ -n "$result" ] && [ "$(jq '(.Errors // []) | length' <<< "$result")" -gt 0 ]; then
+              echo "::error::Failed to delete some objects:"
+              jq '.Errors' <<< "$result"
+              exit 1
+            fi
+          done
+
+          aws s3api delete-bucket --bucket "$BUCKET"
+          echo "Bucket '$BUCKET' deleted."
